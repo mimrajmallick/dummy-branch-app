@@ -1,0 +1,12 @@
+services:
+  api:
+    environment:
+      HOT_RELOAD: "true"
+    volumes:
+      - ./app:/app/app
+      - ./wsgi.py:/app/wsgi.py
+    command: >
+      sh -c "sleep 3 &&
+             alembic upgrade head &&
+             python scripts/seed.py &&
+             flask run --host=0.0.0.0 --port=8000 --reload"

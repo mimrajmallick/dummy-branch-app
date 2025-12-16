@@ -1,0 +1,10 @@
+.git
+.github
+.env
+*.pyc
+__pycache__
+node_modules
+README.md
+test*.py
+*.log
+.DS_Store

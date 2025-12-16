@@ -1,0 +1,8 @@
+services:
+  api:
+    environment:
+      HOT_RELOAD: "false"
+    command: >
+      sh -c "sleep 10 &&
+             alembic upgrade head &&
+             gunicorn -w 4 -b 0.0.0.0:8000 --access-logfile - wsgi:app"

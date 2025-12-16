@@ -5,29 +5,40 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: microloans
-    ports:
-      - "5432:5432"
     volumes:
-      - db_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d microloans"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+      - postgres_data:/var/lib/postgresql/data
 
   api:
     build: .
-    environment:
-      FLASK_ENV: development
-      DATABASE_URL: postgresql+psycopg2://postgres:postgres@db:5432/microloans
-      PORT: 8000
-      PYTHONPATH: /app
     depends_on:
-      db:
-        condition: service_healthy
+      - db
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@db:5432/microloans
     ports:
       - "8000:8000"
-    command: gunicorn -w 2 -b 0.0.0.0:8000 wsgi:app
+    # SIMPLE command that works
+    command: >
+      bash -c "
+        echo 'Waiting for database...' &&
+        sleep 10 &&
+        echo 'Running migrations...' &&
+        alembic upgrade head &&
+        echo 'Seeding data...' &&
+        python scripts/seed.py &&
+        echo 'Starting server...' &&
+        gunicorn -w 2 -b 0.0.0.0:8000 wsgi:app
+      "
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./ssl/branchloans.crt:/etc/ssl/certs/branchloans.crt:ro
+      - ./ssl/branchloans.key:/etc/ssl/private/branchloans.key:ro
+    depends_on:
+      - api
 
 volumes:
-  db_data:
+  postgres_data:
