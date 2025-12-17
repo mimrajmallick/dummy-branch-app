@@ -28,13 +28,13 @@ jobs:
       
       - name: Run basic validation
         run: |
-          echo "🔍 Validating project structure..."
+          echo " Validating project structure..."
           ls -la
           echo ""
-          echo "✅ Python version:"
+          echo " Python version:"
           python --version
           echo ""
-          echo "✅ Checking key files:"
+          echo " Checking key files:"
           [ -f "Dockerfile" ] && echo "  ✓ Dockerfile exists" || echo "  ✗ Dockerfile missing"
           [ -f "docker-compose.yml" ] && echo "  ✓ docker-compose.yml exists" || echo "  ✗ docker-compose.yml missing"
           [ -f "requirements.txt" ] && echo "  ✓ requirements.txt exists" || echo "  ✗ requirements.txt missing"
@@ -53,14 +53,14 @@ jobs:
       
       - name: Build Docker image
         run: |
-          echo "🏗️ Building Docker image..."
+          echo " Building Docker image..."
           docker build -t branch-api:latest .
-          echo "✅ Docker build completed"
+          echo " Docker build completed"
       
       - name: Test Docker image
         run: |
-          echo "🧪 Testing Docker image..."
-          docker run --rm branch-api:latest python -c "print('✅ Container test passed')"
+          echo " Testing Docker image..."
+          docker run --rm branch-api:latest python -c "print(' Container test passed')"
 
   push:
     runs-on: ubuntu-latest
@@ -81,7 +81,7 @@ jobs:
       - name: Build and push Docker image
         run: |
           IMAGE_NAME="ghcr.io/${{ github.repository }}"
-          echo "🚀 Building and pushing: $IMAGE_NAME"
+          echo " Building and pushing: $IMAGE_NAME"
           
           # Build with tags
           docker build -t $IMAGE_NAME:latest -t $IMAGE_NAME:${{ github.sha }} .
@@ -90,6 +90,6 @@ jobs:
           docker push $IMAGE_NAME:latest
           docker push $IMAGE_NAME:${{ github.sha }}
           
-          echo "✅ Successfully pushed to GitHub Container Registry"
+          echo " Successfully pushed to GitHub Container Registry"
           echo "Latest: $IMAGE_NAME:latest"
           echo "Versioned: $IMAGE_NAME:${{ github.sha }}"
